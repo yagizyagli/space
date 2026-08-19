@@ -1,0 +1,21 @@
+{
+  "name": "@space/sandbox",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@space/core": "workspace:*",
+    "@space/database": "workspace:*",
+    "@space/physics": "workspace:*",
+    "@space/render": "workspace:*",
+    "@space/telemetry": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
