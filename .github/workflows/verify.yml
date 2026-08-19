@@ -23,8 +23,10 @@ jobs:
         with:
           node-version: 24
 
-      - name: Bypass Auth For Dependency Fetching
-        run: echo "//registry.npmjs.org/:_authToken=" > .npmrc
+      - name: Purge Global Auth Tokens For Fetching
+        run: |
+          echo "//registry.npmjs.org/:_authToken=" > .npmrc
+          echo "//npmjs.org/:_authToken=" >> .npmrc
 
       - name: Install Project Dependencies
         run: pnpm install
