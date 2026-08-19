@@ -42,31 +42,33 @@
 
   <canvas id="space-viewport"></canvas>
 
-  <!-- Inline unified script ensures absolute sequential load, completely eliminating async blocks -->
-  <script type="module">
-    import { SpaceEngine } from './packages/core/src/Engine.ts';
+  <!-- Explicitly setting application/javascript token targets to completely bypass video/mp2t errors -->
+  <script type="application/javascript">
+    window.addEventListener('load', async () => {
+      // Dynamic import enforces strict runtime JavaScript evaluation on bundle components
+      const { SpaceEngine } = await import('./packages/core/src/Engine.ts');
 
-    const canvas = document.getElementById('space-viewport');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    // Guaranteed execution on standard canvas layer
-    const engine = new SpaceEngine({
-      canvasElement: canvas,
-      enableLiveTelemetry: false
-    });
-    engine.start();
-
-    const currentExpDisplay = document.getElementById('current-exp');
-    
-    document.getElementById('btn-subatomic').addEventListener('click', () => { engine.getCamera().zoomTo(-15); currentExpDisplay.innerText = '-15'; });
-    document.getElementById('btn-macro').addEventListener('click', () => { engine.getCamera().zoomTo(1); currentExpDisplay.innerText = '1'; });
-    document.getElementById('btn-celestial').addEventListener('click', () => { engine.getCamera().zoomTo(7); currentExpDisplay.innerText = '7'; });
-    document.getElementById('btn-deepspace').addEventListener('click', () => { engine.getCamera().zoomTo(10); currentExpDisplay.innerText = '10'; });
-
-    window.addEventListener('resize', () => {
+      const canvas = document.getElementById('space-viewport');
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+
+      const engine = new SpaceEngine({
+        canvasElement: canvas,
+        enableLiveTelemetry: false
+      });
+      engine.start();
+
+      const currentExpDisplay = document.getElementById('current-exp');
+      
+      document.getElementById('btn-subatomic').addEventListener('click', () => { engine.getCamera().zoomTo(-15); currentExpDisplay.innerText = '-15'; });
+      document.getElementById('btn-macro').addEventListener('click', () => { engine.getCamera().zoomTo(1); currentExpDisplay.innerText = '1'; });
+      document.getElementById('btn-celestial').addEventListener('click', () => { engine.getCamera().zoomTo(7); currentExpDisplay.innerText = '7'; });
+      document.getElementById('btn-deepspace').addEventListener('click', () => { engine.getCamera().zoomTo(10); currentExpDisplay.innerText = '10'; });
+
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
     });
   </script>
 </body>
