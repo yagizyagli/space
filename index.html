@@ -42,7 +42,116 @@
 
   <canvas id="space-viewport"></canvas>
 
-  <!-- Pointing exclusively to a single pre-compiled distribution bridge loader -->
-  <script type="module" src="/src/main.ts"></script>
+  <script type="module">
+    // -------------------------------------------------------------
+    // 🧬 INLINE ARCHITECTURE LAYER (DATABASE, PHYSICS, RENDER)
+    // -------------------------------------------------------------
+
+    // 1. Unified Universal Database Records
+    const subatomicParticles = [
+      { id: "quark_01", name: "Up Quark", scaleExponent: -18, radiusInMeters: 1e-18, visuals: { baseColor: "#ff5555" } },
+      { id: "proton_01", name: "Proton", scaleExponent: -15, radiusInMeters: 8.4e-16, visuals: { baseColor: "#55ff55" } }
+    ];
+
+    const solarSystemBodies = [
+      {
+        id: "earth_01",
+        name: "Earth",
+        scaleExponent: 7,
+        radiusInMeters: 6371000,
+        orbitalElements: { semiMajorAxis: 1.0, eccentricity: 0.0167, orbitalPeriodInDays: 365.25 },
+        visuals: { baseColor: "#2b82c9" }
+      }
+    ];
+
+    const deepSpaceEntities = [
+      { id: "blackhole_01", name: "Sagittarius A*", scaleExponent: 10, radiusInMeters: 1.2e10, visuals: { baseColor: "#ffaa00" } }
+    ];
+
+    // 2. High-Precision Orbital Mechanics Physics Solver
+    class KeplerianSolver {
+      static computeOrbitalPosition(body, timeInSeconds) {
+        const a = body.orbitalElements.semiMajorAxis * 1.496e11;
+        const e = body.orbitalElements.eccentricity;
+        const periodInSeconds = body.orbitalElements.orbitalPeriodInDays * 86400;
+        const meanAnomaly = ((2 * Math.PI / periodInSeconds) * timeInSeconds) % (2 * Math.PI);
+
+        let eccentricAnomaly = meanAnomaly;
+        for (let i = 0; i < 5; i++) {
+          eccentricAnomaly -= (eccentricAnomaly - e * Math.sin(eccentricAnomaly) - meanAnomaly) / (1 - e * Math.cos(eccentricAnomaly));
+        }
+
+        return {
+          x: a * (Math.cos(eccentricAnomaly) - e),
+          y: a * Math.sqrt(1 - e * e) * Math.sin(eccentricAnomaly)
+        };
+      }
+    }
+
+    // 3. Logarithmic Scaling Camera Engine
+    class LogarithmicCamera {
+      constructor(initialExponent = 7) {
+        this.currentExponent = initialExponent;
+        this.targetExponent = initialExponent;
+        this.lerpFactor = 0.1;
+      }
+      zoomTo(exponent) { this.targetExponent = exponent; }
+      update() { this.currentExponent += (this.targetExponent - this.currentExponent) * this.lerpFactor; }
+      calculatePixelSize(realRadiusInMeters, objectExponent, screenWidth) {
+        const viewRangeMeters = Math.pow(10, this.currentExponent);
+        return (realRadiusInMeters / viewRangeMeters) * (screenWidth / 2);
+      }
+    }
+
+    // 4. Vector Backdrop Starfield Simulator
+    class StarField {
+      constructor(canvas, maxStars = 400) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.stars = Array.from({ length: maxStars }, () => ({
+          x: (Math.random() - 0.5) * window.innerWidth * 2,
+          y: (Math.random() - 0.5) * window.innerHeight * 2,
+          z: Math.random() * window.innerWidth,
+          brightness: Math.random()
+        }));
+      }
+      render(speed = 0.5) {
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        this.ctx.fillStyle = '#000000';
+        this.ctx.fillRect(0, 0, w, h);
+
+        for (const star of this.stars) {
+          star.z -= speed;
+          if (star.z <= 0) star.z = w;
+          const k = 128.0 / star.z;
+          const px = star.x * k + w / 2;
+          const py = star.y * k + h / 2;
+          if (px >= 0 && px <= w && py >= 0 && py  this.loop(elapsedTimeInSeconds + 6000));
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 🕹️ INTERACTIVE MOUNT INITIALIZATION RUNTIME
+    // -------------------------------------------------------------
+    const canvas = document.getElementById('space-viewport');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const engine = new SpaceEngine(canvas);
+    engine.start();
+
+    const currentExpDisplay = document.getElementById('current-exp');
+    
+    document.getElementById('btn-subatomic').addEventListener('click', () => { engine.getCamera().zoomTo(-15); currentExpDisplay.innerText = '-15'; });
+    document.getElementById('btn-macro').addEventListener('click', () => { engine.getCamera().zoomTo(1); currentExpDisplay.innerText = '1'; });
+    document.getElementById('btn-celestial').addEventListener('click', () => { engine.getCamera().zoomTo(7); currentExpDisplay.innerText = '7'; });
+    document.getElementById('btn-deepspace').addEventListener('click', () => { engine.getCamera().zoomTo(10); currentExpDisplay.innerText = '10'; });
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
 </body>
 </html>
