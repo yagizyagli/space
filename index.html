@@ -123,7 +123,72 @@
           const k = 128.0 / star.z;
           const px = star.x * k + w / 2;
           const py = star.y * k + h / 2;
-          if (px >= 0 && px <= w && py >= 0 && py  this.loop(elapsedTimeInSeconds + 6000));
+          
+          if (px >= 0 && px <= w && py >= 0 && py <= h) {
+            const size = (1 - star.z / w) * 2;
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+            this.ctx.fillRect(px, py, size, size);
+          }
+        }
+      }
+    }
+
+    // 5. Central System Core Space Engine
+    class SpaceEngine {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.camera = new LogarithmicCamera(7);
+        this.starField = new StarField(canvas, 400);
+        this.isRunning = false;
+      }
+      
+      start() { 
+        this.isRunning = true; 
+        this.loop(0); 
+      }
+      
+      getCamera() { 
+        return this.camera; 
+      }
+      
+      loop(elapsedTimeInSeconds) {
+        if (!this.isRunning) return;
+
+        this.starField.render(0.4);
+
+        const allEntities = [...subatomicParticles, ...solarSystemBodies, ...deepSpaceEntities];
+
+        for (const body of allEntities) {
+          let screenX = this.canvas.width / 2;
+          let screenY = this.canvas.height / 2;
+
+          if (body.orbitalElements) {
+            const position = KeplerianSolver.computeOrbitalPosition(body, elapsedTimeInSeconds);
+            screenX += (position.x / 1.496e11) * 250;
+            screenY += (position.y / 1.496e11) * 250;
+          }
+
+          const pixelSize = this.camera.calculatePixelSize(body.radiusInMeters, body.scaleExponent, this.canvas.width);
+          const finalRenderSize = Math.max(14, pixelSize);
+
+          this.ctx.beginPath();
+          this.ctx.arc(screenX, screenY, finalRenderSize, 0, Math.PI * 2);
+          this.ctx.fillStyle = body.visuals?.baseColor || '#50b6ff';
+          this.ctx.fill();
+
+          this.ctx.beginPath();
+          this.ctx.arc(screenX, screenY, finalRenderSize * 1.6, 0, Math.PI * 2);
+          this.ctx.fillStyle = 'rgba(80, 182, 255, 0.12)';
+          this.ctx.fill();
+
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.font = 'bold 13px monospace';
+          this.ctx.fillText(body.name, screenX + finalRenderSize + 12, screenY + 5);
+        }
+
+        this.camera.update();
+        requestAnimationFrame(() => this.loop(elapsedTimeInSeconds + 6000));
       }
     }
 
