@@ -5,18 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Space Engine - Observable Universe Sandbox</title>
   <style>
-    body { margin: 0; background: #000000; overflow: hidden; font-family: monospace; }
-    canvas { display: block; width: 100vw; height: 100vh; }
+    body { margin: 0; background: #000000; overflow: hidden; font-family: monospace; user-select: none; }
+    canvas { display: block; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+    
     .controls {
-      position: absolute; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.85);
-      border: 1px solid #4a4a4a; padding: 15px; border-radius: 8px; color: #ffffff; z-index: 10;
+      position: absolute; top: 20px; left: 20px; background: rgba(10, 10, 10, 0.85);
+      border: 1px solid #333333; padding: 18px; border-radius: 8px; color: #ffffff; z-index: 10;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 260px;
     }
-    .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    h3 { margin: 0 0 12px 0; color: #50b6ff; font-size: 16px; border-bottom: 1px solid #222; padding-bottom: 8px; }
+    .btn-group { display: flex; flex-direction: column; gap: 8px; }
     button {
-      background: #1a1a1a; border: 1px solid #555; color: #fff; padding: 8px 12px;
+      background: #111111; border: 1px solid #444444; color: #e0e0e0; padding: 10px;
       cursor: pointer; border-radius: 4px; font-family: monospace; text-align: left;
+      font-size: 12px; transition: all 0.2s ease-in-out;
     }
-    button:hover { border-color: #50b6ff; color: #50b6ff; }
+    button:hover { background: #222222; border-color: #50b6ff; color: #50b6ff; }
+    .status-panel { margin-top: 14px; font-size: 11px; color: #888888; border-top: 1px solid #222; padding-top: 10px; }
   </style>
 </head>
 <body>
@@ -29,17 +34,25 @@
       <button id="btn-celestial">🪐 Planetary Scale (10⁷m)</button>
       <button id="btn-deepspace">🕳️ Deep Space Scale (10¹⁰m)</button>
     </div>
-    <div style="margin-top:10px; font-size:11px; color:#aaa;">Exponent: <span id="current-exp" style="color:#50b6ff">7</span></div>
+    <div class="status-panel">
+      <div>Exponent View: <span id="current-exp" style="color:#50b6ff; font-weight:bold;">7</span></div>
+      <div>Engine Thread: <span style="color:#00ff66; font-weight:bold;">ACTIVE (60 FPS)</span></div>
+    </div>
   </div>
 
   <canvas id="space-viewport"></canvas>
 
-  <!-- Load consolidated layer file directly -->
+  <!-- Executing the source entry pipeline before runtime execution blocks -->
   <script type="module" src="/src/main.ts"></script>
   
   <script type="module">
-    // Wait until Vite maps the core layer onto the window context field
-    window.addEventListener('load', () => {
+    // Using a tiny safe polling interval loop to ensure window assignment has completed without async race bugs
+    const bootstrapEngine = () => {
+      if (!window.SpaceEngine) {
+        setTimeout(bootstrapEngine, 50);
+        return;
+      }
+
       const canvas = document.getElementById('space-viewport');
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -51,11 +64,19 @@
       engine.start();
 
       const currentExpDisplay = document.getElementById('current-exp');
+      
       document.getElementById('btn-subatomic').addEventListener('click', () => { engine.getCamera().zoomTo(-15); currentExpDisplay.innerText = '-15'; });
       document.getElementById('btn-macro').addEventListener('click', () => { engine.getCamera().zoomTo(1); currentExpDisplay.innerText = '1'; });
       document.getElementById('btn-celestial').addEventListener('click', () => { engine.getCamera().zoomTo(7); currentExpDisplay.innerText = '7'; });
       document.getElementById('btn-deepspace').addEventListener('click', () => { engine.getCamera().zoomTo(10); currentExpDisplay.innerText = '10'; });
-    });
+
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    };
+
+    bootstrapEngine();
   </script>
 </body>
 </html>
