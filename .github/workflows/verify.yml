@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'pnpm'
 
       - name: Bypass Auth For Dependency Fetching
         run: echo "//registry.npmjs.org/:_authToken=" > .npmrc
