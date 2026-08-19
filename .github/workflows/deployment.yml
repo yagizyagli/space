@@ -20,10 +20,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          registry-url: 'https://npmjs.org'
+          registry-url: 'https://registry.npmjs.org'
 
-      - name: Bypass Auth For Dependency Fetching
-        run: echo "//registry.npmjs.org/:_authToken=" > .npmrc
+      - name: Purge Global Auth Tokens For Fetching
+        run: |
+          echo "//registry.npmjs.org/:_authToken=" > .npmrc
+          echo "//npmjs.org/:_authToken=" >> .npmrc
 
       - name: Install Project Dependencies
         run: pnpm install
