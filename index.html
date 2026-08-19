@@ -5,38 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Space Engine - Observable Universe Sandbox</title>
   <style>
-    body { margin: 0; background: #000000; overflow: hidden; font-family: monospace; user-select: none; }
+    body { margin: 0; background: #020208; overflow: hidden; font-family: 'Courier New', Courier, monospace; user-select: none; }
     canvas { display: block; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
     
+    /* Luxury Cyberpunk Sci-Fi UI Controls */
     .controls {
-      position: absolute; top: 20px; left: 20px; background: rgba(10, 10, 10, 0.9);
-      border: 1px solid #333333; padding: 18px; border-radius: 8px; color: #ffffff; z-index: 10;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.7); width: 260px;
+      position: absolute; top: 25px; left: 25px; background: rgba(5, 5, 15, 0.85);
+      border: 1px solid #1e3a8a; padding: 20px; border-radius: 12px; color: #ffffff; z-index: 10;
+      box-shadow: 0 0 25px rgba(0, 149, 255, 0.2); width: 280px; backdrop-filter: blur(8px);
     }
-    h3 { margin: 0 0 12px 0; color: #50b6ff; font-size: 16px; border-bottom: 1px solid #222; padding-bottom: 8px; }
-    .btn-group { display: flex; flex-direction: column; gap: 8px; }
+    h3 { margin: 0 0 14px 0; color: #0095ff; font-size: 16px; border-bottom: 1px solid #1e3a8a; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .btn-group { display: flex; flex-direction: column; gap: 10px; }
     button {
-      background: #111111; border: 1px solid #444444; color: #e0e0e0; padding: 10px;
-      cursor: pointer; border-radius: 4px; font-family: monospace; text-align: left;
-      font-size: 12px; transition: all 0.2s ease-in-out;
+      background: rgba(10, 25, 50, 0.6); border: 1px solid #1e3a8a; color: #a3e635; padding: 12px;
+      cursor: pointer; border-radius: 6px; font-family: inherit; text-align: left;
+      font-size: 12px; font-weight: bold; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    button:hover { background: #222222; border-color: #50b6ff; color: #50b6ff; }
-    .status-panel { margin-top: 14px; font-size: 11px; color: #888888; border-top: 1px solid #222; padding-top: 10px; }
+    button:hover { background: #0095ff; border-color: #38bdf8; color: #020208; box-shadow: 0 0 15px rgba(0, 149, 255, 0.6); transform: translateX(5px); }
+    .status-panel { margin-top: 16px; font-size: 11px; color: #64748b; border-top: 1px solid #1e3a8a; padding-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+    .neon-text { color: #38bdf8; font-weight: bold; }
+    .success-text { color: #4ade80; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <div class="controls">
-    <h3>Cosmic Scale Navigator</h3>
+    <h3>Cosmic Navigator</h3>
     <div class="btn-group">
-      <button id="btn-subatomic">🔬 Subatomic Scale (10⁻¹⁵m)</button>
-      <button id="btn-macro">🛰️ Anthropogenic Scale (10¹m)</button>
-      <button id="btn-celestial">🪐 Planetary Scale (10⁷m)</button>
-      <button id="btn-deepspace">🕳️ Deep Space Scale (10¹⁰m)</button>
+      <button id="btn-subatomic">🔬 SUBATOMIC SCALE (10⁻¹⁵m)</button>
+      <button id="btn-macro">🛰️ ANTHROPOGENIC SCALE (10¹m)</button>
+      <button id="btn-celestial">🪐 PLANETARY SCALE (10⁷m)</button>
+      <button id="btn-deepspace">🕳️ DEEP SPACE SCALE (10¹⁰m)</button>
     </div>
     <div class="status-panel">
-      <div>Exponent View: <span id="current-exp" style="color:#50b6ff; font-weight:bold;">7</span></div>
-      <div>Engine Thread: <span style="color:#00ff66; font-weight:bold;">ACTIVE (60 FPS)</span></div>
+      <div>VIEW EXPONENT: <span id="current-exp" class="neon-text">7</span></div>
+      <div>CORE ENGINE: <span class="success-text">ONLINE (60 FPS)</span></div>
     </div>
   </div>
 
@@ -45,8 +48,8 @@
   <script type="module">
     // 1. Unified Universal Database Records
     const subatomicParticles = [
-      { id: "quark_01", name: "Up Quark", scaleExponent: -18, radiusInMeters: 1e-18, visuals: { baseColor: "#ff5555" } },
-      { id: "proton_01", name: "Proton", scaleExponent: -15, radiusInMeters: 8.4e-16, visuals: { baseColor: "#55ff55" } }
+      { id: "quark_01", name: "Up Quark", scaleExponent: -18, radiusInMeters: 1e-18, visuals: { baseColor: "#ef4444" } },
+      { id: "proton_01", name: "Proton", scaleExponent: -15, radiusInMeters: 8.4e-16, visuals: { baseColor: "#22c55e" } }
     ];
 
     const solarSystemBodies = [
@@ -56,12 +59,12 @@
         scaleExponent: 7,
         radiusInMeters: 6371000,
         orbitalElements: { semiMajorAxis: 1.0, eccentricity: 0.0167, orbitalPeriodInDays: 365.25 },
-        visuals: { baseColor: "#2b82c9" }
+        visuals: { baseColor: "#3b82f6" }
       }
     ];
 
     const deepSpaceEntities = [
-      { id: "blackhole_01", name: "Sagittarius A*", scaleExponent: 10, radiusInMeters: 1.2e10, visuals: { baseColor: "#ffaa00" } }
+      { id: "blackhole_01", name: "Sagittarius A*", scaleExponent: 10, radiusInMeters: 1.2e10, visuals: { baseColor: "#eab308" } }
     ];
 
     // 2. High-Precision Orbital Mechanics Physics Solver
@@ -84,24 +87,30 @@
       }
     }
 
-    // 3. Logarithmic Scaling Camera Engine
+    // 3. Optimized Scaling Camera Engine (Fixes the full-screen color bleeding bug)
     class LogarithmicCamera {
       constructor(initialExponent = 7) {
         this.currentExponent = initialExponent;
         this.targetExponent = initialExponent;
-        this.lerpFactor = 0.1;
+        this.lerpFactor = 0.08; // Ultra smooth cinematic glide
       }
       zoomTo(exponent) { this.targetExponent = exponent; }
       update() { this.currentExponent += (this.targetExponent - this.currentExponent) * this.lerpFactor; }
       calculatePixelSize(realRadiusInMeters, objectExponent, screenWidth) {
         const viewRangeMeters = Math.pow(10, this.currentExponent);
-        return (realRadiusInMeters / viewRangeMeters) * (screenWidth / 2);
+        const calculatedSize = (realRadiusInMeters / viewRangeMeters) * (screenWidth / 4);
+        
+        // Dynamic adaptive scale locking based on active camera exponents
+        const diff = Math.abs(this.currentExponent - objectExponent);
+        if (diff > 3) return 0; // Completely hides out-of-scale objects to prevent full-screen color bleeding
+        
+        return Math.min(calculatedSize, screenWidth * 0.15);
       }
     }
 
     // 4. Vector Backdrop Starfield Simulator
     class StarField {
-      constructor(canvas, maxStars = 400) {
+      constructor(canvas, maxStars = 500) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.stars = Array.from({ length: maxStars }, () => ({
@@ -111,10 +120,10 @@
           brightness: Math.random()
         }));
       }
-      render(speed = 0.5) {
+      render(speed = 0.3) {
         const w = this.canvas.width;
         const h = this.canvas.height;
-        this.ctx.fillStyle = '#000000';
+        this.ctx.fillStyle = '#010206';
         this.ctx.fillRect(0, 0, w, h);
 
         for (const star of this.stars) {
@@ -123,72 +132,38 @@
           const k = 128.0 / star.z;
           const px = star.x * k + w / 2;
           const py = star.y * k + h / 2;
-          
-          if (px >= 0 && px <= w && py >= 0 && py <= h) {
-            const size = (1 - star.z / w) * 2;
-            this.ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
-            this.ctx.fillRect(px, py, size, size);
+          if (px >= 0 && px <= w && py >= 0 && py  0) {
+            const finalRenderSize = Math.max(25, pixelSize); // Enhanced visibility footprint
+
+            // Cinematic atmospheric aura blur glow
+            this.ctx.beginPath();
+            this.ctx.arc(screenX, screenY, finalRenderSize * 1.8, 0, Math.PI * 2);
+            this.ctx.fillStyle = body.visuals.baseColor + '1a'; // 10% opacity hex
+            this.ctx.fill();
+
+            this.ctx.beginPath();
+            this.ctx.arc(screenX, screenY, finalRenderSize * 1.4, 0, Math.PI * 2);
+            this.ctx.fillStyle = body.visuals.baseColor + '4d'; // 30% opacity hex
+            this.ctx.fill();
+
+            // Core Entity Solid Body
+            this.ctx.beginPath();
+            this.ctx.arc(screenX, screenY, finalRenderSize, 0, Math.PI * 2);
+            this.ctx.fillStyle = body.visuals.baseColor;
+            this.ctx.fill();
+
+            // Cyberpunk vector text labeling
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.font = 'bold 12px "Courier New", monospace';
+            this.ctx.shadowColor = '#000000';
+            this.ctx.shadowBlur = 4;
+            this.ctx.fillText(`> ${body.name.toUpperCase()}`, screenX + finalRenderSize + 14, screenY + 4);
+            this.ctx.shadowBlur = 0; // Reset shadow specs
           }
-        }
-      }
-    }
-
-    // 5. Central System Core Space Engine
-    class SpaceEngine {
-      constructor(canvas) {
-        this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
-        this.camera = new LogarithmicCamera(7);
-        this.starField = new StarField(canvas, 400);
-        this.isRunning = false;
-      }
-      
-      start() { 
-        this.isRunning = true; 
-        this.loop(0); 
-      }
-      
-      getCamera() { 
-        return this.camera; 
-      }
-      
-      loop(elapsedTimeInSeconds) {
-        if (!this.isRunning) return;
-
-        this.starField.render(0.4);
-
-        const allEntities = [...subatomicParticles, ...solarSystemBodies, ...deepSpaceEntities];
-
-        for (const body of allEntities) {
-          let screenX = this.canvas.width / 2;
-          let screenY = this.canvas.height / 2;
-
-          if (body.orbitalElements) {
-            const position = KeplerianSolver.computeOrbitalPosition(body, elapsedTimeInSeconds);
-            screenX += (position.x / 1.496e11) * 250;
-            screenY += (position.y / 1.496e11) * 250;
-          }
-
-          const pixelSize = this.camera.calculatePixelSize(body.radiusInMeters, body.scaleExponent, this.canvas.width);
-          const finalRenderSize = Math.max(14, pixelSize);
-
-          this.ctx.beginPath();
-          this.ctx.arc(screenX, screenY, finalRenderSize, 0, Math.PI * 2);
-          this.ctx.fillStyle = body.visuals?.baseColor || '#50b6ff';
-          this.ctx.fill();
-
-          this.ctx.beginPath();
-          this.ctx.arc(screenX, screenY, finalRenderSize * 1.6, 0, Math.PI * 2);
-          this.ctx.fillStyle = 'rgba(80, 182, 255, 0.12)';
-          this.ctx.fill();
-
-          this.ctx.fillStyle = '#ffffff';
-          this.ctx.font = 'bold 13px monospace';
-          this.ctx.fillText(body.name, screenX + finalRenderSize + 12, screenY + 5);
         }
 
         this.camera.update();
-        requestAnimationFrame(() => this.loop(elapsedTimeInSeconds + 6000));
+        requestAnimationFrame(() => this.loop(elapsedTimeInSeconds + 4000));
       }
     }
 
@@ -206,13 +181,14 @@
     
     document.getElementById('btn-subatomic').addEventListener('click', () => { engine.getCamera().zoomTo(-15); currentExpDisplay.innerText = '-15'; });
     document.getElementById('btn-macro').addEventListener('click', () => { engine.getCamera().zoomTo(1); currentExpDisplay.innerText = '1'; });
-    document.getElementById('btn-celestial').addEventListener('click', () => { engine.getCamera().zoomTo(7); currentExpDisplay.innerText = '7'; });
-    document.getElementById('btn-deepspace').addEventListener('click', () => { engine.getCamera().zoomTo(10); currentExpDisplay.innerText = '10'; });
-
+    document.getElementById('btn-celestial').addEventListener('click', () => { 
+    engine.getCamera().zoomTo(7); currentExpDisplay.innerText = '7'; });
+    document.getElementById('btn-deepspace').addEventListener('click', () => { 
+    engine.getCamera().zoomTo(10); currentExpDisplay.innerText = '10'; });
+    
     window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-  </script>
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;});
+   </script>
 </body>
 </html>
