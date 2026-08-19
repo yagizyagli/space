@@ -1,39 +1,30 @@
 import { LogarithmicCamera, StarField } from '@space/render';
 import { KeplerianSolver } from '@space/physics';
-import { solarSystemBodies } from '@space/database';
+import { solarSystemBodies, subatomicParticles, deepSpaceEntities } from '@space/database';
 
 export interface SpaceEngineConfig {
   canvasElement: HTMLCanvasElement;
   enableLiveTelemetry: boolean;
 }
 
-/**
- * The core orchestrator that brings database, physics, and rendering pipelines together.
- */
 export class SpaceEngine {
   private isRunning: boolean = false;
   private camera: LogarithmicCamera;
   private starField: StarField;
   private canvas: HTMLCanvasElement;
+  private ctx: CanvasRenderingContext2D;
 
   constructor(config: SpaceEngineConfig) {
     this.canvas = config.canvasElement;
-    
-    // Core layer configurations
-    this.camera = new LogarithmicCamera(7); // Start at Earth scale (10^7m)
-    this.starField = new StarField(this.canvas, 800);
-    
-    console.log('🚀 [Space Engine] Fully initialized. All packages integrated seamlessly.');
+    this.ctx = this.canvas.getContext('2d')!;
+    this.camera = new LogarithmicCamera(7); 
+    this.starField = new StarField(this.canvas, 500);
   }
 
   public start(): void {
     if (this.isRunning) return;
     this.isRunning = true;
     this.loop(0);
-  }
-
-  public stop(): void {
-    this.isRunning = false;
   }
 
   public getCamera(): LogarithmicCamera {
@@ -43,22 +34,44 @@ export class SpaceEngine {
   private loop(elapsedTimeInSeconds: number): void {
     if (!this.isRunning) return;
 
-    // 1. Render the background space universe
-    this.starField.render(0.3);
+    this.starField.render(0.5);
 
-    // 2. Compute physics for planetary assets
-    for (const body of solarSystemBodies) {
-      const position = KeplerianSolver.computeOrbitalPosition(body, elapsedTimeInSeconds);
+    // Group all universal entries together for consolidated rendering pipeline
+    const allEntities = [
+      ...subatomicParticles,
+      ...solarSystemBodies,
+      ...deepSpaceEntities
+    ];
+
+    for (const body of allEntities) {
+      // If the body has orbital elements, compute movement, else render static coordinates
+      let screenX = this.canvas.width / 2;
+      let screenY = this.canvas.height / 2;
+
+      if ('orbitalElements' in body && body.orbitalElements) {
+        const position = KeplerianSolver.computeOrbitalPosition(body as any, elapsedTimeInSeconds);
+        screenX += (position.x / 1.496e11) * 200;
+        screenY += (position.y / 1.496e11) * 200;
+      }
+
       const pixelSize = this.camera.calculatePixelSize(body.radiusInMeters, body.scaleExponent, this.canvas.width);
-      
-      // Here, the engine triggers the rendering pipeline to draw the calculated entities
-      // e.g., drawing circles on canvas based on position.x and position.y
+
+      // Simple filter: Only draw if the entity is visible at current zoom ranges
+      if (pixelSize > 0.5) {
+        this.ctx. someColor = 'stellarClass' in body ? '#ff3366' : '#50b6ff';
+        
+        this.ctx.beginPath();
+        this.ctx.arc(screenX, screenY, pixelSize, 0, Math.PI * 2);
+        this.ctx.fillStyle = body.visuals?.baseColor || this.ctx.someColor;
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = '12px monospace';
+        this.ctx.fillText(body.name, screenX + pixelSize + 5, screenY + 4);
+      }
     }
 
-    // 3. Keep camera LERP values smooth
     this.camera.update();
-
-    // Constant increment of time scale for calculations
     requestAnimationFrame(() => this.loop(elapsedTimeInSeconds + 5000));
   }
 }
