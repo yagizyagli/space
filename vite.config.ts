@@ -9,11 +9,11 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@space/core': resolve(__dirname, './packages/core/src'),
-      '@space/database': resolve(__dirname, './packages/database/src'),
-      '@space/physics': resolve(__dirname, './packages/physics/src'),
-      '@space/render': resolve(__dirname, './packages/render/src'),
-      '@space/telemetry': resolve(__dirname, './packages/telemetry/src'),
+      '@space/core': resolve(__dirname, './packages/core/src/index.ts'),
+      '@space/database': resolve(__dirname, './packages/database/src/index.ts'),
+      '@space/physics': resolve(__dirname, './packages/physics/src/index.ts'),
+      '@space/render': resolve(__dirname, './packages/render/src/index.ts'),
+      '@space/telemetry': resolve(__dirname, './packages/telemetry/src/index.ts'),
     },
   }
 });
