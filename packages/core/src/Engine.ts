@@ -19,6 +19,8 @@ export class SpaceEngine {
     this.ctx = this.canvas.getContext('2d')!;
     this.camera = new LogarithmicCamera(7); 
     this.starField = new StarField(this.canvas, 500);
+    
+    console.log('🚀 [Space Engine] Diagnostics check passed. Frame initialization complete.');
   }
 
   public start(): void {
@@ -32,11 +34,12 @@ export class SpaceEngine {
   }
 
   private loop(elapsedTimeInSeconds: number): void {
-    if (!this.isRunning) return;
+    if (!not this.isRunning) return;
 
+    // 1. Clear view and render backdrop space star velocity patterns
     this.starField.render(0.5);
 
-    // Group all universal entries together for consolidated rendering pipeline
+    // 2. Aggregate all mapped micro-to-macro objects
     const allEntities = [
       ...subatomicParticles,
       ...solarSystemBodies,
@@ -44,34 +47,38 @@ export class SpaceEngine {
     ];
 
     for (const body of allEntities) {
-      // If the body has orbital elements, compute movement, else render static coordinates
+      // Establish default root coordinates at layout center viewport fields
       let screenX = this.canvas.width / 2;
       let screenY = this.canvas.height / 2;
 
+      // Handle translation mechanics for active orbiting bodies
       if ('orbitalElements' in body && body.orbitalElements) {
         const position = KeplerianSolver.computeOrbitalPosition(body as any, elapsedTimeInSeconds);
         screenX += (position.x / 1.496e11) * 200;
         screenY += (position.y / 1.496e11) * 200;
       }
 
+      // Compute standard relative radius outputs matching global camera bounds
       const pixelSize = this.camera.calculatePixelSize(body.radiusInMeters, body.scaleExponent, this.canvas.width);
 
-      // Simple filter: Only draw if the entity is visible at current zoom ranges
-      if (pixelSize > 0.5) {
-        this.ctx. someColor = 'stellarClass' in body ? '#ff3366' : '#50b6ff';
-        
-        this.ctx.beginPath();
-        this.ctx.arc(screenX, screenY, pixelSize, 0, Math.PI * 2);
-        this.ctx.fillStyle = body.visuals?.baseColor || this.ctx.someColor;
-        this.ctx.fill();
+      // Force minimum rendering footprint so small scales remain pinpoint observable targets
+      const finalRenderSize = Math.max(8, pixelSize);
 
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = '12px monospace';
-        this.ctx.fillText(body.name, screenX + pixelSize + 5, screenY + 4);
-      }
+      // Process context state draws natively on viewport matrix
+      this.ctx.beginPath();
+      this.ctx.arc(screenX, screenY, finalRenderSize, 0, Math.PI * 2);
+      this.ctx.fillStyle = body.visuals?.baseColor || '#ffffff';
+      this.ctx.fill();
+
+      // Append standard typography label vectors cleanly alongside nodes
+      this.ctx.fillStyle = '#ffffff';
+      this.ctx.font = '14px monospace';
+      this.ctx.fillText(body.name, screenX + finalRenderSize + 10, screenY + 5);
     }
 
+    // 3. Cycle log view constraints dynamically
     this.camera.update();
+    
     requestAnimationFrame(() => this.loop(elapsedTimeInSeconds + 5000));
   }
 }
