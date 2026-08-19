@@ -1,6 +1,7 @@
-import { LogarithmicCamera, StarField } from '@space/render';
-import { KeplerianSolver } from '@space/physics';
-import { solarSystemBodies, subatomicParticles, deepSpaceEntities } from '@space/database';
+import { LogarithmicCamera, StarField } from '../../render/src/Camera.ts'; // Safe straight dynamic imports
+import { StarField as BackgroundStarField } from '../../render/src/StarField.ts';
+import { KeplerianSolver } from '../../physics/src/solvers/keplerian.ts';
+import { solarSystemBodies, subatomicParticles, deepSpaceEntities } from '../../database/src/index.ts';
 
 export interface SpaceEngineConfig {
   canvasElement: HTMLCanvasElement;
@@ -10,17 +11,17 @@ export interface SpaceEngineConfig {
 export class SpaceEngine {
   private isRunning: boolean = false;
   private camera: LogarithmicCamera;
-  private starField: StarField;
+  private starField: BackgroundStarField;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
 
   constructor(config: SpaceEngineConfig) {
     this.canvas = config.canvasElement;
     this.ctx = this.canvas.getContext('2d')!;
-    this.camera = new LogarithmicCamera(7); // Default Planetary Scale
-    this.starField = new StarField(this.canvas, 500);
+    this.camera = new LogarithmicCamera(7); 
+    this.starField = new BackgroundStarField(this.canvas, 500);
     
-    console.log('🚀 [Space Engine] Engine initialized cleanly. Render loop warm.');
+    console.log('🚀 [Space Engine] Universal context mapping stabilized.');
   }
 
   public start(): void {
@@ -34,13 +35,12 @@ export class SpaceEngine {
   }
 
   private loop(elapsedTimeInSeconds: number): void {
-    // FIXED: Removed the invalid syntax placeholder string token
     if (!this.isRunning) return;
 
-    // 1. Draw stars backdrop configuration frame
+    // 1. Draw stars backdrop frame
     this.starField.render(0.5);
 
-    // 2. Compile every scale profile entity from database packages
+    // 2. Compile every dynamic object list securely
     const allEntities = [
       ...subatomicParticles,
       ...solarSystemBodies,
@@ -51,41 +51,34 @@ export class SpaceEngine {
       let screenX = this.canvas.width / 2;
       let screenY = this.canvas.height / 2;
 
-      // Handle translation mechanics for active orbiting bodies
       if ('orbitalElements' in body && body.orbitalElements) {
         const position = KeplerianSolver.computeOrbitalPosition(body as any, elapsedTimeInSeconds);
-        // Scaled offset projection vectors mapped for explicit screen visibility
         screenX += (position.x / 1.496e11) * 250;
         screenY += (position.y / 1.496e11) * 250;
       }
 
-      // Compute visual boundary sizes matching current logarithmic zoom states
       const pixelSize = this.camera.calculatePixelSize(body.radiusInMeters, body.scaleExponent, this.canvas.width);
-
-      // Clamping limits so nodes are explicitly rendered as pointer units on viewport matrix
       const finalRenderSize = Math.max(12, pixelSize);
 
-      // Execute vector paths draw cycles natively
+      // Render actual body nodes on screen layer
       this.ctx.beginPath();
       this.ctx.arc(screenX, screenY, finalRenderSize, 0, Math.PI * 2);
       this.ctx.fillStyle = body.visuals?.baseColor || '#50b6ff';
       this.ctx.fill();
 
-      // Atmospheric secondary aura rendering logic
+      // Atmospheric aura logic
       this.ctx.beginPath();
       this.ctx.arc(screenX, screenY, finalRenderSize * 1.5, 0, Math.PI * 2);
-      this.ctx.fillStyle = 'rgba(80, 182, 255, 0.15)';
+      this.ctx.fillStyle = 'rgba(80, 182, 255, 0.12)';
       this.ctx.fill();
 
-      // Print item entity indicators
+      // Print indicator descriptions cleanly
       this.ctx.fillStyle = '#ffffff';
       this.ctx.font = 'bold 13px monospace';
       this.ctx.fillText(body.name, screenX + finalRenderSize + 10, screenY + 5);
     }
 
-    // 3. Increment scaling engine constraints dynamically
     this.camera.update();
-    
     requestAnimationFrame(() => this.loop(elapsedTimeInSeconds + 8000));
   }
 }
