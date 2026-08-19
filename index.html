@@ -8,20 +8,48 @@
     body { margin: 0; background: #020208; overflow: hidden; font-family: 'Courier New', Courier, monospace; user-select: none; }
     canvas { display: block; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
     
-    /* Luxury Cyberpunk Sci-Fi UI Controls */
+    /* Advanced Cyberpunk Sci-Fi UI Controls with Animation */
     .controls {
-      position: absolute; top: 25px; left: 25px; background: rgba(5, 5, 15, 0.85);
+      position: absolute; top: 25px; left: 25px; background: rgba(5, 5, 15, 0.9);
       border: 1px solid #1e3a8a; padding: 20px; border-radius: 12px; color: #ffffff; z-index: 10;
-      box-shadow: 0 0 25px rgba(0, 149, 255, 0.2); width: 280px; backdrop-filter: blur(8px);
+      box-shadow: 0 0 25px rgba(0, 149, 255, 0.25); width: 280px; backdrop-filter: blur(8px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(0);
+      opacity: 1;
     }
+    
+    /* Toggle state utilities */
+    .controls.hidden {
+      transform: translateX(-340px);
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    /* Futuristic Floating Trigger Button */
+    .toggle-trigger {
+      position: absolute; top: 25px; left: 25px; background: rgba(10, 25, 50, 0.8);
+      border: 1px solid #0095ff; color: #0095ff; padding: 12px 16px; border-radius: 8px;
+      cursor: pointer; z-index: 9; font-family: inherit; font-size: 12px; font-weight: bold;
+      box-shadow: 0 0 15px rgba(0, 149, 255, 0.2);
+      transition: all 0.2s ease-in-out;
+    }
+    .toggle-trigger:hover { background: #0095ff; color: #020208; box-shadow: 0 0 20px rgba(0, 149, 255, 0.6); }
+
+    /* Inside panel close trigger */
+    .close-panel-btn {
+      float: right; background: none; border: none; color: #ef4444; cursor: pointer;
+      font-family: inherit; font-size: 14px; font-weight: bold; padding: 0; margin-top: -2px;
+    }
+    .close-panel-btn:hover { color: #f87171; text-shadow: 0 0 8px #ef4444; }
+
     h3 { margin: 0 0 14px 0; color: #0095ff; font-size: 16px; border-bottom: 1px solid #1e3a8a; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
     .btn-group { display: flex; flex-direction: column; gap: 10px; }
-    button {
+    button.nav-btn {
       background: rgba(10, 25, 50, 0.6); border: 1px solid #1e3a8a; color: #a3e635; padding: 12px;
       cursor: pointer; border-radius: 6px; font-family: inherit; text-align: left;
       font-size: 12px; font-weight: bold; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    button:hover { background: #0095ff; border-color: #38bdf8; color: #020208; box-shadow: 0 0 15px rgba(0, 149, 255, 0.6); transform: translateX(5px); }
+    button.nav-btn:hover { background: #0095ff; border-color: #38bdf8; color: #020208; box-shadow: 0 0 15px rgba(0, 149, 255, 0.6); transform: translateX(5px); }
     .status-panel { margin-top: 16px; font-size: 11px; color: #64748b; border-top: 1px solid #1e3a8a; padding-top: 12px; display: flex; flex-direction: column; gap: 4px; }
     .neon-text { color: #38bdf8; font-weight: bold; }
     .success-text { color: #4ade80; font-weight: bold; }
@@ -29,13 +57,18 @@
 </head>
 <body>
 
-  <div class="controls">
+  <!-- Floating Menu Trigger (Only visible when panel is closed) -->
+  <button id="btn-toggle-menu" class="toggle-trigger">> OPEN MENU</button>
+
+  <!-- Main HUD Panel -->
+  <div id="hud-panel" class="controls">
+    <button id="btn-close-hud" class="close-panel-btn">[X]</button>
     <h3>Cosmic Navigator</h3>
     <div class="btn-group">
-      <button id="btn-subatomic">🔬 SUBATOMIC SCALE (10⁻¹⁵m)</button>
-      <button id="btn-macro">🛰️ ANTHROPOGENIC SCALE (10¹m)</button>
-      <button id="btn-celestial">🪐 PLANETARY SCALE (10⁷m)</button>
-      <button id="btn-deepspace">🕳️ DEEP SPACE SCALE (10¹⁰m)</button>
+      <button id="btn-subatomic" class="nav-btn">🔬 SUBATOMIC SCALE (10⁻¹⁵m)</button>
+      <button id="btn-macro" class="nav-btn">🛰️ ANTHROPOGENIC SCALE (10¹m)</button>
+      <button id="btn-celestial" class="nav-btn">🪐 PLANETARY SCALE (10⁷m)</button>
+      <button id="btn-deepspace" class="nav-btn">🕳️ DEEP SPACE SCALE (10¹⁰m)</button>
     </div>
     <div class="status-panel">
       <div>VIEW EXPONENT: <span id="current-exp" class="neon-text">7</span></div>
@@ -43,9 +76,10 @@
     </div>
   </div>
 
-  <canvas id="space-viewport"></canvas>
 
-    <script type="module">
+    <canvas id="space-viewport"></canvas>
+
+    <script type="module">    
     // -------------------------------------------------------------
     // 🧬 ENHANCED UNIVERSAL DATABASE RECORDS (NASA / JPL DATA)
     // -------------------------------------------------------------
@@ -72,7 +106,23 @@
       { id: "blackhole_01", name: "Sagittarius A*", scaleExponent: 10, radiusInMeters: 1.2e10, visuals: { baseColor: "#eab308" } },
       { id: "andromeda_01", name: "Andromeda (M31)", scaleExponent: 21, radiusInMeters: 1.04e21, visuals: { baseColor: "#a855f7" } }
     ];
-       // -------------------------------------------------------------
+
+    // 🕹️ INTERACTIVE HUD TOGGLE MECHANICS
+    const hudPanel = document.getElementById('hud-panel');
+    const toggleMenuBtn = document.getElementById('btn-toggle-menu');
+    const closeHudBtn = document.getElementById('btn-close-hud');
+
+    // Close HUD action (slides left out of view)
+    closeHudBtn.addEventListener('click', () => {
+      hudPanel.classList.add('hidden');
+    });
+
+    // Open HUD action (slides back into view)
+    toggleMenuBtn.addEventListener('click', () => {
+      hudPanel.classList.remove('hidden');
+    });
+ 
+    // -------------------------------------------------------------
     // 🧮 ASTROPHYSICS & CORE SIMULATION LOGIC
     // -------------------------------------------------------------
     
