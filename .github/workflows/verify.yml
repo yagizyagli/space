@@ -9,20 +9,28 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM Environment
+        uses: pnpm/action-setup@v3
         with:
           version: 9
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
-      
-      - name: Install Dependencies
-        run: pnpm install
-        
-      - name: Typecheck
+
+      - name: Bypass Auth For Dependency Fetching
+        run: echo "//registry.npmjs.org/:_authToken=" > .npmrc
+
+      - name: Install Project Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Execute Typechecks
         run: pnpm typecheck
-        
-      - name: Run Tests
+
+      - name: Execute Unit Tests
         run: pnpm test
