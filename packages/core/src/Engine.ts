@@ -17,10 +17,10 @@ export class SpaceEngine {
   constructor(config: SpaceEngineConfig) {
     this.canvas = config.canvasElement;
     this.ctx = this.canvas.getContext('2d')!;
-    this.camera = new LogarithmicCamera(7); 
+    this.camera = new LogarithmicCamera(7); // Default Planetary Scale
     this.starField = new StarField(this.canvas, 500);
     
-    console.log('🚀 [Space Engine] Diagnostics check passed. Frame initialization complete.');
+    console.log('🚀 [Space Engine] Engine initialized cleanly. Render loop warm.');
   }
 
   public start(): void {
@@ -34,12 +34,13 @@ export class SpaceEngine {
   }
 
   private loop(elapsedTimeInSeconds: number): void {
-    if (!not this.isRunning) return;
+    // FIXED: Removed the invalid syntax placeholder string token
+    if (!this.isRunning) return;
 
-    // 1. Clear view and render backdrop space star velocity patterns
+    // 1. Draw stars backdrop configuration frame
     this.starField.render(0.5);
 
-    // 2. Aggregate all mapped micro-to-macro objects
+    // 2. Compile every scale profile entity from database packages
     const allEntities = [
       ...subatomicParticles,
       ...solarSystemBodies,
@@ -47,38 +48,44 @@ export class SpaceEngine {
     ];
 
     for (const body of allEntities) {
-      // Establish default root coordinates at layout center viewport fields
       let screenX = this.canvas.width / 2;
       let screenY = this.canvas.height / 2;
 
       // Handle translation mechanics for active orbiting bodies
       if ('orbitalElements' in body && body.orbitalElements) {
         const position = KeplerianSolver.computeOrbitalPosition(body as any, elapsedTimeInSeconds);
-        screenX += (position.x / 1.496e11) * 200;
-        screenY += (position.y / 1.496e11) * 200;
+        // Scaled offset projection vectors mapped for explicit screen visibility
+        screenX += (position.x / 1.496e11) * 250;
+        screenY += (position.y / 1.496e11) * 250;
       }
 
-      // Compute standard relative radius outputs matching global camera bounds
+      // Compute visual boundary sizes matching current logarithmic zoom states
       const pixelSize = this.camera.calculatePixelSize(body.radiusInMeters, body.scaleExponent, this.canvas.width);
 
-      // Force minimum rendering footprint so small scales remain pinpoint observable targets
-      const finalRenderSize = Math.max(8, pixelSize);
+      // Clamping limits so nodes are explicitly rendered as pointer units on viewport matrix
+      const finalRenderSize = Math.max(12, pixelSize);
 
-      // Process context state draws natively on viewport matrix
+      // Execute vector paths draw cycles natively
       this.ctx.beginPath();
       this.ctx.arc(screenX, screenY, finalRenderSize, 0, Math.PI * 2);
-      this.ctx.fillStyle = body.visuals?.baseColor || '#ffffff';
+      this.ctx.fillStyle = body.visuals?.baseColor || '#50b6ff';
       this.ctx.fill();
 
-      // Append standard typography label vectors cleanly alongside nodes
+      // Atmospheric secondary aura rendering logic
+      this.ctx.beginPath();
+      this.ctx.arc(screenX, screenY, finalRenderSize * 1.5, 0, Math.PI * 2);
+      this.ctx.fillStyle = 'rgba(80, 182, 255, 0.15)';
+      this.ctx.fill();
+
+      // Print item entity indicators
       this.ctx.fillStyle = '#ffffff';
-      this.ctx.font = '14px monospace';
+      this.ctx.font = 'bold 13px monospace';
       this.ctx.fillText(body.name, screenX + finalRenderSize + 10, screenY + 5);
     }
 
-    // 3. Cycle log view constraints dynamically
+    // 3. Increment scaling engine constraints dynamically
     this.camera.update();
     
-    requestAnimationFrame(() => this.loop(elapsedTimeInSeconds + 5000));
+    requestAnimationFrame(() => this.loop(elapsedTimeInSeconds + 8000));
   }
 }
