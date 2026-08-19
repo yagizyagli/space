@@ -1,16 +1,26 @@
 {
   "name": "space",
   "version": "0.1.0",
-  "private": true,
-  "description": "A lightweight, high-performance JavaScript/TypeScript toolkit for bringing space, astronomy, and real-time celestial data to the web.",
+  "description": "A JavaScript/TypeScript toolkit for bringing space, astronomy, and real-time celestial data to the web.",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "test": "turbo test",
-    "test:watch": "turbo test -- --watch",
-    "typecheck": "tsc --noEmit",
-    "clean": "pnpm -r exec rm -rf node_modules dist"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "space",
@@ -21,14 +31,12 @@
     "space-data",
     "astronomy-library",
     "webgl",
-    "webgpu",
     "3d"
   ],
   "license": "MIT",
   "devDependencies": {
-    "turbo": "^2.0.0",
     "typescript": "^5.4.0",
+    "vite": "^5.0.0",
     "vitest": "^3.0.0"
-  },
-  "packageManager": "pnpm@9.0.0"
+  }
 }
