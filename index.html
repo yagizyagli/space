@@ -72,7 +72,7 @@
       { id: "blackhole_01", name: "Sagittarius A*", scaleExponent: 10, radiusInMeters: 1.2e10, visuals: { baseColor: "#eab308" } },
       { id: "andromeda_01", name: "Andromeda (M31)", scaleExponent: 21, radiusInMeters: 1.04e21, visuals: { baseColor: "#a855f7" } }
     ];
-    // -------------------------------------------------------------
+       // -------------------------------------------------------------
     // 🧮 ASTROPHYSICS & CORE SIMULATION LOGIC
     // -------------------------------------------------------------
     
@@ -94,12 +94,14 @@
       constructor(canvas, maxStars = 400) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-        this.stars = Array.from({ length: maxStars }, () => ({
-          x: (Math.random() - 0.5) * window.innerWidth * 2,
-          y: (Math.random() - 0.5) * window.innerHeight * 2,
-          z: Math.random() * window.innerWidth,
-          brightness: Math.random()
-        }));
+        this.stars = Array.from({ length: maxStars }, function() {
+          return {
+            x: (Math.random() - 0.5) * window.innerWidth * 2,
+            y: (Math.random() - 0.5) * window.innerHeight * 2,
+            z: Math.random() * window.innerWidth,
+            brightness: Math.random()
+          };
+        });
       }
       render(speed = 0.3) {
         const w = this.canvas.width;
@@ -113,11 +115,52 @@
           const k = 128.0 / star.z;
           const px = star.x * k + w / 2;
           const py = star.y * k + h / 2;
-          if (px >= 0 && px <= w && py >= 0 && py  b.scaleExponent <= 4); // Only spacecrafts
-        else if (currentExp === 7) activeEntities = solarSystemBodies; // Entire Solar System Catalog
-        else if (currentExp === 10) activeEntities = deepSpaceEntities;
+          if (px >= 0 && px <= w && py >= 0 && py <= h) {
+            const size = (1 - star.z / w) * 1.5;
+            this.ctx.fillStyle = "rgba(255, 255, 255, " + (star.brightness * 0.7) + ")";
+            this.ctx.fillRect(px, py, size, size);
+          }
+        }
+      }
+    }
 
-        // 3. Grid Display Matrix parameters configuration
+    class SpaceEngine {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.camera = new LogarithmicCamera(7);
+        this.starField = new StarField(canvas, 400);
+        this.isRunning = false;
+      }
+      
+      start() { 
+        this.isRunning = true; 
+        this.loop(0); 
+      }
+      
+      getCamera() { return this.camera; }
+      
+      loop(elapsedTimeInSeconds) {
+        if (!this.isRunning) return;
+
+        this.starField.render(0.2);
+
+        const currentExp = Math.round(this.camera.targetExponent);
+        let activeEntities = [];
+
+        // FIXED: Replaced array arrow tokens with traditional robust function mapping loops
+        if (currentExp === -15) {
+          activeEntities = subatomicParticles;
+        } else if (currentExp === 1) {
+          activeEntities = solarSystemBodies.filter(function(element) {
+            return element.scaleExponent <= 4;
+          });
+        } else if (currentExp === 7) {
+          activeEntities = solarSystemBodies;
+        } else if (currentExp === 10) {
+          activeEntities = deepSpaceEntities;
+        }
+
         const count = activeEntities.length;
         const cols = count > 4 ? 4 : count;
         const rows = Math.ceil(count / cols);
@@ -126,29 +169,24 @@
         const cellHeight = this.canvas.height / rows;
 
         activeEntities.forEach((body, index) => {
-          // Calculate grid positioning metrics cleanly
           const col = index % cols;
           const row = Math.floor(index / cols);
           
           const centerX = col * cellWidth + cellWidth / 2;
           const centerY = row * cellHeight + cellHeight / 2;
 
-          // Draw futuristic interface border panels separating the cosmic objects
           this.ctx.strokeStyle = 'rgba(30, 58, 138, 0.2)';
           this.ctx.lineWidth = 1;
           this.ctx.strokeRect(col * cellWidth + 10, row * cellHeight + 10, cellWidth - 20, cellHeight - 20);
 
-          // Safe positioning spin metrics
           let offsetBoundsX = 0;
           let offsetBoundsY = 0;
 
           if (body.orbitalElements) {
             const angle = ((2 * Math.PI / body.orbitalElements.orbitalPeriodInDays) * (elapsedTimeInSeconds * 0.001)) % (2 * Math.PI);
-            // Dynamic localized rotation orbit proxies
             offsetBoundsX = Math.cos(angle) * (Math.min(cellWidth, cellHeight) * 0.22);
             offsetBoundsY = Math.sin(angle) * (Math.min(cellWidth, cellHeight) * 0.22);
 
-            // Draw clean mathematical vector circular orbital lines inside the cell panels
             this.ctx.beginPath();
             this.ctx.arc(centerX, centerY, Math.min(cellWidth, cellHeight) * 0.22, 0, Math.PI * 2);
             this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
@@ -163,7 +201,6 @@
 
           this.ctx.save();
 
-          // Render Neon glow layers natively
           this.ctx.globalAlpha = 0.08;
           this.ctx.beginPath();
           this.ctx.arc(targetX, targetY, finalRenderSize * 1.8, 0, Math.PI * 2);
@@ -176,14 +213,12 @@
           this.ctx.fillStyle = body.visuals.baseColor;
           this.ctx.fill();
 
-          // Main Core Entity structure
           this.ctx.globalAlpha = 1.0;
           this.ctx.beginPath();
           this.ctx.arc(targetX, targetY, finalRenderSize, 0, Math.PI * 2);
           this.ctx.fillStyle = body.visuals.baseColor;
           this.ctx.fill();
 
-          // Draw rings securely for Saturn without layout breaks
           if (body.visuals.hasRings) {
             this.ctx.globalAlpha = 0.4;
             this.ctx.strokeStyle = "#cbd5e1";
@@ -195,7 +230,6 @@
 
           this.ctx.restore();
 
-          // Render metadata telemetry text
           this.ctx.fillStyle = '#ffffff';
           this.ctx.font = 'bold 11px "Courier New", monospace';
           this.ctx.fillText(`> ${body.name.toUpperCase()}`, col * cellWidth + 25, row * cellHeight + 35);
@@ -230,4 +264,3 @@
   </script>
 </body>
 </html>
-
