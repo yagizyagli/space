@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
+  // Enforces relative asset paths so it opens perfectly on GitHub Pages
+  base: './',
   server: {
     port: 3000,
     open: true
@@ -19,11 +21,11 @@ export default defineConfig({
     outDir: 'dist',
     minify: 'terser',
     sourcemap: true,
-    lib: {
-      entry: resolve(__dirname, './packages/core/src/index.ts'),
-      name: 'Space',
-      fileName: (format) => `space.${format}.js`,
-      formats: ['es', 'umd']
-    }
+    // Configuration optimized for generating the web application for GitHub Pages
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+      },
+    },
   }
 });
