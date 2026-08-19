@@ -2,18 +2,11 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
+  // Enforce relative paths so assets resolve correctly on GitHub Pages
   base: './',
   server: {
     port: 3000,
-    open: true,
-    // FORCE CONFIGURATION: Solves the browser 'video/mp2t' MIME type validation error
-    headers: {
-      'Content-Type': 'text/javascript',
-    },
-    // Explicitly configures server middleware to map TS files as executable script modules
-    fs: {
-      strict: false
-    }
+    open: true
   },
   resolve: {
     alias: {
@@ -22,6 +15,16 @@ export default defineConfig({
       '@space/physics': resolve(__dirname, './packages/physics/src/index.ts'),
       '@space/render': resolve(__dirname, './packages/render/src/index.ts'),
       '@space/telemetry': resolve(__dirname, './packages/telemetry/src/index.ts'),
+    },
+  },
+  build: {
+    outDir: 'dist',
+    minify: 'terser',
+    sourcemap: false,
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+      },
     },
   }
 });
