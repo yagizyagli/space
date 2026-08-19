@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Live Demo</title>
+  <style>
+    body { margin: 0; background: #000; overflow: hidden; }
+    canvas { display: block; width: 100vw; height: 100vh; }
+  </style>
+</head>
+<body>
+  <canvas id="space-viewport"></canvas>
+  <script type="module">
+    import { SpaceEngine } from '@space/core';
+    const canvas = document.getElementById('space-viewport');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const engine = new SpaceEngine({
+      canvasElement: canvas,
+      enableLiveTelemetry: false
+    });
+    engine.start();
+  </script>
+</body>
+</html>
