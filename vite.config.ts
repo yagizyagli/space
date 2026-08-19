@@ -5,7 +5,15 @@ export default defineConfig({
   base: './',
   server: {
     port: 3000,
-    open: true
+    open: true,
+    // FORCE CONFIGURATION: Solves the browser 'video/mp2t' MIME type validation error
+    headers: {
+      'Content-Type': 'text/javascript',
+    },
+    // Explicitly configures server middleware to map TS files as executable script modules
+    fs: {
+      strict: false
+    }
   },
   resolve: {
     alias: {
