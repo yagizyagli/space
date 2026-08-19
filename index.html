@@ -7,99 +7,54 @@
   <style>
     body { margin: 0; background: #000000; overflow: hidden; font-family: monospace; }
     canvas { display: block; width: 100vw; height: 100vh; }
-    
-    /* Global professional control overlay */
     .controls {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.75);
-      border: 1px solid #4a4a4a;
-      padding: 15px;
-      border-radius: 8px;
-      color: #ffffff;
-      z-index: 10;
-      max-width: 300px;
+      position: absolute; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #4a4a4a; padding: 15px; border-radius: 8px; color: #ffffff; z-index: 10;
     }
-    h3 { margin-top: 0; color: #50b6ff; }
     .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
     button {
-      background: #1a1a1a;
-      border: 1px solid #555;
-      color: #fff;
-      padding: 8px 12px;
-      cursor: pointer;
-      border-radius: 4px;
-      text-align: left;
-      font-family: monospace;
-      transition: all 0.2s ease;
+      background: #1a1a1a; border: 1px solid #555; color: #fff; padding: 8px 12px;
+      cursor: pointer; border-radius: 4px; font-family: monospace; text-align: left;
     }
-    button:hover { background: #333; border-color: #50b6ff; color: #50b6ff; }
-    .status-panel { margin-top: 10px; font-size: 11px; color: #aaa; }
+    button:hover { border-color: #50b6ff; color: #50b6ff; }
   </style>
 </head>
 <body>
 
-  <!-- Interactive Cosmic Scale Navigation Panel -->
   <div class="controls">
     <h3>Cosmic Scale Navigator</h3>
-    <p>Select an exponential scale to warp through the universe boundaries:</p>
     <div class="btn-group">
-      <button id="btn-subatomic">🔬 Subatomic Scale (10⁻¹⁵m - Proton)</button>
-      <button id="btn-macro">🛰️ Anthropogenic Scale (10¹m - Satellites)</button>
-      <button id="btn-celestial">🪐 Planetary Scale (10⁷m - Earth/Sol)</button>
-      <button id="btn-deepspace">🕳️ Deep Space Scale (10¹⁰m - Black Hole)</button>
+      <button id="btn-subatomic">🔬 Subatomic Scale (10⁻¹⁵m)</button>
+      <button id="btn-macro">🛰️ Anthropogenic Scale (10¹m)</button>
+      <button id="btn-celestial">🪐 Planetary Scale (10⁷m)</button>
+      <button id="btn-deepspace">🕳️ Deep Space Scale (10¹⁰m)</button>
     </div>
-    <div class="status-panel">
-      <div>Current Exponent: <span id="current-exp" style="color:#50b6ff">7</span></div>
-      <div>Engine Status: <span style="color:#00ff66">ACTIVE (60 FPS)</span></div>
-    </div>
+    <div style="margin-top:10px; font-size:11px; color:#aaa;">Exponent: <span id="current-exp" style="color:#50b6ff">7</span></div>
   </div>
 
   <canvas id="space-viewport"></canvas>
 
+  <!-- Load consolidated layer file directly -->
+  <script type="module" src="/src/main.ts"></script>
+  
   <script type="module">
-    import { SpaceEngine } from '@space/core';
-
-    const canvas = document.getElementById('space-viewport');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    // Initialize the engine with full infrastructure active
-    const engine = new SpaceEngine({
-      canvasElement: canvas,
-      enableLiveTelemetry: true
-    });
-
-    engine.start();
-
-    // Setup interactive trigger links to core Logarithmic Camera mechanics
-    const currentExpDisplay = document.getElementById('current-exp');
-
-    document.getElementById('btn-subatomic').addEventListener('click', () => {
-      engine.getCamera().zoomTo(-15);
-      currentExpDisplay.innerText = '-15';
-    });
-
-    document.getElementById('btn-macro').addEventListener('click', () => {
-      engine.getCamera().zoomTo(1);
-      currentExpDisplay.innerText = '1';
-    });
-
-    document.getElementById('btn-celestial').addEventListener('click', () => {
-      engine.getCamera().zoomTo(7);
-      currentExpDisplay.innerText = '7';
-    });
-
-    document.getElementById('btn-deepspace').addEventListener('click', () => {
-      engine.getCamera().zoomTo(10);
-      currentExpDisplay.innerText = '10';
-    });
-
-    // Keep viewport perfectly responsive on window resize triggers
-    window.addEventListener('resize', () => {
+    // Wait until Vite maps the core layer onto the window context field
+    window.addEventListener('load', () => {
+      const canvas = document.getElementById('space-viewport');
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+
+      const engine = new window.SpaceEngine({
+        canvasElement: canvas,
+        enableLiveTelemetry: false
+      });
+      engine.start();
+
+      const currentExpDisplay = document.getElementById('current-exp');
+      document.getElementById('btn-subatomic').addEventListener('click', () => { engine.getCamera().zoomTo(-15); currentExpDisplay.innerText = '-15'; });
+      document.getElementById('btn-macro').addEventListener('click', () => { engine.getCamera().zoomTo(1); currentExpDisplay.innerText = '1'; });
+      document.getElementById('btn-celestial').addEventListener('click', () => { engine.getCamera().zoomTo(7); currentExpDisplay.innerText = '7'; });
+      document.getElementById('btn-deepspace').addEventListener('click', () => { engine.getCamera().zoomTo(10); currentExpDisplay.innerText = '10'; });
     });
   </script>
 </body>
