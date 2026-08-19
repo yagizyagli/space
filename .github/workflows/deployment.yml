@@ -7,22 +7,31 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM Environment
+        uses: pnpm/action-setup@v3
         with:
           version: 9
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: 'https://npmjs.org'
-      
-      - name: Install Dependencies
-        run: pnpm install
-        
-      - name: Build Packages
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Bypass Auth For Dependency Fetching
+        run: echo "//registry.npmjs.org/:_authToken=" > .npmrc
+
+      - name: Install Project Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compile Library Bundles
         run: pnpm build
-        
-      - name: Publish to NPM
+
+      - name: Set Production NPM Auth Token
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+
+      - name: Publish Modulated Packages to NPM
         run: pnpm -r publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
