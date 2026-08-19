@@ -45,7 +45,7 @@
 
   <canvas id="space-viewport"></canvas>
 
-  <script type="module">
+   <script type="module">
     // 1. Unified Universal Database Records
     const subatomicParticles = [
       { id: "quark_01", name: "Up Quark", scaleExponent: -18, radiusInMeters: 1e-18, visuals: { baseColor: "#ef4444" } },
@@ -87,12 +87,12 @@
       }
     }
 
-    // 3. Optimized Scaling Camera Engine (Fixes the full-screen color bleeding bug)
+    // 3. Optimized Scaling Camera Engine
     class LogarithmicCamera {
       constructor(initialExponent = 7) {
         this.currentExponent = initialExponent;
         this.targetExponent = initialExponent;
-        this.lerpFactor = 0.08; // Ultra smooth cinematic glide
+        this.lerpFactor = 0.08;
       }
       zoomTo(exponent) { this.targetExponent = exponent; }
       update() { this.currentExponent += (this.targetExponent - this.currentExponent) * this.lerpFactor; }
@@ -100,9 +100,8 @@
         const viewRangeMeters = Math.pow(10, this.currentExponent);
         const calculatedSize = (realRadiusInMeters / viewRangeMeters) * (screenWidth / 4);
         
-        // Dynamic adaptive scale locking based on active camera exponents
         const diff = Math.abs(this.currentExponent - objectExponent);
-        if (diff > 3) return 0; // Completely hides out-of-scale objects to prevent full-screen color bleeding
+        if (diff > 3) return 0;
         
         return Math.min(calculatedSize, screenWidth * 0.15);
       }
@@ -132,25 +131,80 @@
           const k = 128.0 / star.z;
           const px = star.x * k + w / 2;
           const py = star.y * k + h / 2;
-          if (px >= 0 && px <= w && py >= 0 && py  0) {
-            const finalRenderSize = Math.max(25, pixelSize); // Enhanced visibility footprint
+          if (px >= 0 && px <= w && py >= 0 && py <= h) {
+            const size = (1 - star.z / w) * 1.8;
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness * 0.8})`;
+            this.ctx.fillRect(px, py, size, size);
+          }
+        }
+      }
+    }
 
-            // Cinematic atmospheric aura blur glow
+    // 5. Central System Core Space Engine
+    class SpaceEngine {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.camera = new LogarithmicCamera(7);
+        this.starField = new StarField(canvas, 500);
+        this.isRunning = false;
+      }
+      
+      start() { 
+        this.isRunning = true; 
+        this.loop(0); 
+      }
+      
+      getCamera() { 
+        return this.camera; 
+      }
+      
+      loop(elapsedTimeInSeconds) {
+        if (!this.isRunning) return;
+
+        this.starField.render(0.4);
+
+        const allEntities = [...subatomicParticles, ...solarSystemBodies, ...deepSpaceEntities];
+
+        for (const body of allEntities) {
+          let screenX = this.canvas.width / 2;
+          let screenY = this.canvas.height / 2;
+
+          if (body.orbitalElements) {
+            const position = KeplerianSolver.computeOrbitalPosition(body, elapsedTimeInSeconds);
+            screenX += (position.x / 1.496e11) * 300;
+            screenY += (position.y / 1.496e11) * 300;
+          }
+
+          const pixelSize = this.camera.calculatePixelSize(body.radiusInMeters, body.scaleExponent, this.canvas.width);
+          
+          if (pixelSize > 0) {
+            const finalRenderSize = Math.max(25, pixelSize);
+
+            this.ctx.save();
+
+            // 1. Outer Glow Aura (10% opacity)
+            this.ctx.globalAlpha = 0.10;
             this.ctx.beginPath();
             this.ctx.arc(screenX, screenY, finalRenderSize * 1.8, 0, Math.PI * 2);
-            this.ctx.fillStyle = body.visuals.baseColor + '1a'; // 10% opacity hex
+            this.ctx.fillStyle = body.visuals.baseColor;
             this.ctx.fill();
 
+            // 2. Inner Glow Aura (30% opacity)
+            this.ctx.globalAlpha = 0.30;
             this.ctx.beginPath();
             this.ctx.arc(screenX, screenY, finalRenderSize * 1.4, 0, Math.PI * 2);
-            this.ctx.fillStyle = body.visuals.baseColor + '4d'; // 30% opacity hex
+            this.ctx.fillStyle = body.visuals.baseColor;
             this.ctx.fill();
 
-            // Core Entity Solid Body
+            // 3. Solid Core Body (100% opacity)
+            this.ctx.globalAlpha = 1.0;
             this.ctx.beginPath();
             this.ctx.arc(screenX, screenY, finalRenderSize, 0, Math.PI * 2);
             this.ctx.fillStyle = body.visuals.baseColor;
             this.ctx.fill();
+
+            this.ctx.restore();
 
             // Cyberpunk vector text labeling
             this.ctx.fillStyle = '#ffffff';
@@ -158,7 +212,7 @@
             this.ctx.shadowColor = '#000000';
             this.ctx.shadowBlur = 4;
             this.ctx.fillText(`> ${body.name.toUpperCase()}`, screenX + finalRenderSize + 14, screenY + 4);
-            this.ctx.shadowBlur = 0; // Reset shadow specs
+            this.ctx.shadowBlur = 0;
           }
         }
 
@@ -181,14 +235,13 @@
     
     document.getElementById('btn-subatomic').addEventListener('click', () => { engine.getCamera().zoomTo(-15); currentExpDisplay.innerText = '-15'; });
     document.getElementById('btn-macro').addEventListener('click', () => { engine.getCamera().zoomTo(1); currentExpDisplay.innerText = '1'; });
-    document.getElementById('btn-celestial').addEventListener('click', () => { 
-    engine.getCamera().zoomTo(7); currentExpDisplay.innerText = '7'; });
-    document.getElementById('btn-deepspace').addEventListener('click', () => { 
-    engine.getCamera().zoomTo(10); currentExpDisplay.innerText = '10'; });
-    
+    document.getElementById('btn-celestial').addEventListener('click', () => { engine.getCamera().zoomTo(7); currentExpDisplay.innerText = '7'; });
+    document.getElementById('btn-deepspace').addEventListener('click', () => { engine.getCamera().zoomTo(10); currentExpDisplay.innerText = '10'; });
+
     window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;});
-   </script>
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
 </body>
 </html>
