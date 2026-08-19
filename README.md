@@ -107,6 +107,7 @@ engine.getCamera().zoomTo(-15); // Zooms directly to Proton scale (10^-15 meters
 ## 👤 Author
 
 Developed and maintained with absolute cosmic precision by **Yağız Yağlı/[@yagizyagli](https://github.com/yagizyagli)**.
+---
 **Live Demo** [@space](https://yagizyagli.github.io/space/)
 ---
 
