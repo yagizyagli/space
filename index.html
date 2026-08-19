@@ -46,28 +46,121 @@
   <canvas id="space-viewport"></canvas>
 
    <script type="module">
-    // 1. Unified Universal Database Records
+    // -------------------------------------------------------------
+    // 🧬 ENHANCED UNIVERSAL DATABASE RECORDS (NASA / JPL DATA)
+    // -------------------------------------------------------------
+    
+    // 1. Subatomic Scale Entities (10⁻¹⁸m to 10⁻¹⁵m)
     const subatomicParticles = [
       { id: "quark_01", name: "Up Quark", scaleExponent: -18, radiusInMeters: 1e-18, visuals: { baseColor: "#ef4444" } },
       { id: "proton_01", name: "Proton", scaleExponent: -15, radiusInMeters: 8.4e-16, visuals: { baseColor: "#22c55e" } }
     ];
 
+    // 2. Anthropogenic & Planetary Scale Entities (10¹m to 10⁷m)
     const solarSystemBodies = [
+      // Central Star
+      {
+        id: "sun_01",
+        name: "The Sun (Sol)",
+        scaleExponent: 9,
+        radiusInMeters: 696340000,
+        visuals: { baseColor: "#f59e0b" } // Intense Cosmic Yellow
+      },
+      // Inner Planets
+      {
+        id: "mercury_01",
+        name: "Mercury",
+        scaleExponent: 6,
+        radiusInMeters: 2439700,
+        orbitAroundId: "sun_01",
+        orbitalElements: { semiMajorAxis: 0.387, eccentricity: 0.2056, orbitalPeriodInDays: 87.97 },
+        visuals: { baseColor: "#94a3b8" }
+      },
+      {
+        id: "venus_01",
+        name: "Venus",
+        scaleExponent: 7,
+        radiusInMeters: 6051800,
+        orbitAroundId: "sun_01",
+        orbitalElements: { semiMajorAxis: 0.723, eccentricity: 0.0067, orbitalPeriodInDays: 224.7 },
+        visuals: { baseColor: "#f59e0b" }
+      },
       {
         id: "earth_01",
         name: "Earth",
         scaleExponent: 7,
         radiusInMeters: 6371000,
+        orbitAroundId: "sun_01",
         orbitalElements: { semiMajorAxis: 1.0, eccentricity: 0.0167, orbitalPeriodInDays: 365.25 },
         visuals: { baseColor: "#3b82f6" }
+      },
+      {
+        id: "moon_01",
+        name: "The Moon (Luna)",
+        scaleExponent: 6,
+        radiusInMeters: 1737400,
+        orbitAroundId: "earth_01",
+        orbitalElements: { semiMajorAxis: 0.00257, eccentricity: 0.0549, orbitalPeriodInDays: 27.32 },
+        visuals: { baseColor: "#cbd5e1" }
+      },
+      {
+        id: "mars_01",
+        name: "Mars",
+        scaleExponent: 6,
+        radiusInMeters: 3389500,
+        orbitAroundId: "sun_01",
+        orbitalElements: { semiMajorAxis: 1.524, eccentricity: 0.0934, orbitalPeriodInDays: 686.98 },
+        visuals: { baseColor: "#ef4444" }
+      },
+      // Outer Gas Giants
+      {
+        id: "jupiter_01",
+        name: "Jupiter",
+        scaleExponent: 8,
+        radiusInMeters: 69911000,
+        orbitAroundId: "sun_01",
+        orbitalElements: { semiMajorAxis: 5.203, eccentricity: 0.0489, orbitalPeriodInDays: 4332.59 },
+        visuals: { baseColor: "#f97316" }
+      },
+      {
+        id: "saturn_01",
+        name: "Saturn",
+        scaleExponent: 8,
+        radiusInMeters: 58232000,
+        orbitAroundId: "sun_01",
+        orbitalElements: { semiMajorAxis: 9.537, eccentricity: 0.0541, orbitalPeriodInDays: 10759.22 },
+        visuals: { baseColor: "#fef08a", hasRings: true }
+      },
+      // Anthropogenic Spacecraft Explorers
+      {
+        id: "jwst_01",
+        name: "James Webb Space Telescope",
+        scaleExponent: 1,
+        radiusInMeters: 22,
+        orbitAroundId: "earth_01",
+        orbitalElements: { semiMajorAxis: 0.01, eccentricity: 0.01, orbitalPeriodInDays: 365.25 },
+        visuals: { baseColor: "#eab308" }
+      },
+      {
+        id: "voyager_01",
+        name: "Voyager 1",
+        scaleExponent: 0,
+        radiusInMeters: 4,
+        orbitAroundId: "sun_01",
+        orbitalElements: { semiMajorAxis: 163.0, eccentricity: 1.0, orbitalPeriodInDays: 999999 },
+        visuals: { baseColor: "#ec4899" }
       }
     ];
 
+    // 3. Deep Space & Cosmic Scale Entities (10¹⁰m to 10²²m)
     const deepSpaceEntities = [
-      { id: "blackhole_01", name: "Sagittarius A*", scaleExponent: 10, radiusInMeters: 1.2e10, visuals: { baseColor: "#eab308" } }
+      { id: "blackhole_01", name: "Sagittarius A*", scaleExponent: 10, radiusInMeters: 1.2e10, visuals: { baseColor: "#eab308" } },
+      { id: "andromeda_01", name: "Andromeda Galaxy (M31)", scaleExponent: 21, radiusInMeters: 1.04e21, visuals: { baseColor: "#a855f7" } }
     ];
-
-    // 2. High-Precision Orbital Mechanics Physics Solver
+         // -------------------------------------------------------------
+    // 🧮 ASTROPHYSICS & CORE SIMULATION LOGIC
+    // -------------------------------------------------------------
+    
     class KeplerianSolver {
       static computeOrbitalPosition(body, timeInSeconds) {
         const a = body.orbitalElements.semiMajorAxis * 1.496e11;
@@ -87,7 +180,6 @@
       }
     }
 
-    // 3. Optimized Scaling Camera Engine
     class LogarithmicCamera {
       constructor(initialExponent = 7) {
         this.currentExponent = initialExponent;
@@ -101,13 +193,12 @@
         const calculatedSize = (realRadiusInMeters / viewRangeMeters) * (screenWidth / 4);
         
         const diff = Math.abs(this.currentExponent - objectExponent);
-        if (diff > 3) return 0;
+        if (diff > 4) return 0;
         
         return Math.min(calculatedSize, screenWidth * 0.15);
       }
     }
 
-    // 4. Vector Backdrop Starfield Simulator
     class StarField {
       constructor(canvas, maxStars = 500) {
         this.canvas = canvas;
@@ -140,7 +231,6 @@
       }
     }
 
-    // 5. Central System Core Space Engine
     class SpaceEngine {
       constructor(canvas) {
         this.canvas = canvas;
@@ -155,9 +245,7 @@
         this.loop(0); 
       }
       
-      getCamera() { 
-        return this.camera; 
-      }
+      getCamera() { return this.camera; }
       
       loop(elapsedTimeInSeconds) {
         if (!this.isRunning) return;
@@ -172,14 +260,15 @@
 
           if (body.orbitalElements) {
             const position = KeplerianSolver.computeOrbitalPosition(body, elapsedTimeInSeconds);
-            screenX += (position.x / 1.496e11) * 300;
-            screenY += (position.y / 1.496e11) * 300;
+            const distanceScale = body.orbitAroundId === "earth_01" ? 15000 : 45; 
+            screenX += (position.x / 1.496e11) * distanceScale;
+            screenY += (position.y / 1.496e11) * distanceScale;
           }
 
           const pixelSize = this.camera.calculatePixelSize(body.radiusInMeters, body.scaleExponent, this.canvas.width);
           
           if (pixelSize > 0) {
-            const finalRenderSize = Math.max(25, pixelSize);
+            const finalRenderSize = Math.max(22, pixelSize);
 
             this.ctx.save();
 
@@ -204,9 +293,19 @@
             this.ctx.fillStyle = body.visuals.baseColor;
             this.ctx.fill();
 
+            // Special Asset Rendering: Saturn's Planetary Rings Structure
+            if (body.visuals.hasRings) {
+              this.ctx.globalAlpha = 0.5;
+              this.ctx.strokeStyle = "#e2e8f0";
+              this.ctx.lineWidth = finalRenderSize * 0.4;
+              this.ctx.beginPath();
+              this.ctx.ellipse(screenX, screenY, finalRenderSize * 1.7, finalRenderSize * 0.6, Math.PI / 6, 0, Math.PI * 2);
+              this.ctx.stroke();
+            }
+
             this.ctx.restore();
 
-            // Cyberpunk vector text labeling
+            // Cyberpunk vector typography text labeling
             this.ctx.fillStyle = '#ffffff';
             this.ctx.font = 'bold 12px "Courier New", monospace';
             this.ctx.shadowColor = '#000000';
@@ -217,7 +316,7 @@
         }
 
         this.camera.update();
-        requestAnimationFrame(() => this.loop(elapsedTimeInSeconds + 4000));
+        requestAnimationFrame(() => this.loop(elapsedTimeInSeconds + 12000));
       }
     }
 
